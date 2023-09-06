@@ -1,10 +1,9 @@
 package com.geekbrains.mystopwatch.mvvm.viewmodel
 
 import com.geekbrains.mystopwatch.mvvm.model.data.StopwatchStateHolder
+
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,16 +12,17 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class StopwatchListOrchestrator(
-    private val stopwatchStateHolder: StopwatchStateHolder
-) {
-
-    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private val scope: CoroutineScope,
+    private val stopwatchStateHolder: StopwatchStateHolder)
+{
     private var job: Job? = null
+
     private val mutableTicker = MutableStateFlow("")
     val ticker: StateFlow<String> = mutableTicker
 
     fun start() {
-        if (job == null) startJob()
+        if (job == null)
+            startJob()
         stopwatchStateHolder.start()
     }
 
