@@ -1,23 +1,14 @@
 package com.geekbrains.mystopwatch.mvvm.view
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 
 import com.geekbrains.mystopwatch.R
-import com.geekbrains.mystopwatch.mvvm.model.data.ElapsedTimeCalculator
-import com.geekbrains.mystopwatch.mvvm.model.data.StopwatchStateCalculator
-import com.geekbrains.mystopwatch.mvvm.model.data.StopwatchStateHolder
-
 import com.geekbrains.mystopwatch.mvvm.model.entities.TimestampProvider
-import com.geekbrains.mystopwatch.mvvm.viewmodel.StopwatchListOrchestrator
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
+import com.geekbrains.mystopwatch.mvvm.viewmodel.MainViewModel
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,37 +18,31 @@ class MainActivity : AppCompatActivity() {
             return System.currentTimeMillis()
         }
     }
-    private val stopwatchListOrchestrator = StopwatchListOrchestrator(
-        StopwatchStateHolder(
-            StopwatchStateCalculator(
-                timestampProvider,
-                ElapsedTimeCalculator(timestampProvider)
-            )
-        )
-    )
+
+    private val viewModel by lazy {
+        ViewModelProvider(this).get(MainViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val textView = findViewById<TextView>(R.id.text_time)
-        CoroutineScope(
-            Dispatchers.Main
-                    + SupervisorJob()
-        ).launch {
-            stopwatchListOrchestrator.ticker.collect {
-                textView.text = it
-            }
+        viewModel.initTimer(timestampProvider)
+        viewModel.getLiveData().observe(this) { time ->
+            val textView = findViewById<TextView>(R.id.text_time)
+            textView.text = time
         }
-
         findViewById<Button>(R.id.button_start).setOnClickListener {
-            stopwatchListOrchestrator.start()
+            viewModel.startTimer()
         }
         findViewById<Button>(R.id.button_pause).setOnClickListener {
-            stopwatchListOrchestrator.pause()
+            viewModel.pauseTimer()
         }
         findViewById<Button>(R.id.button_stop).setOnClickListener {
-            stopwatchListOrchestrator.stop()
+            viewModel.stopTimer()
         }
     }
 }
+
+
+

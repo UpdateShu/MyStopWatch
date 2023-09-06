@@ -49,6 +49,7 @@
         android:id="@+id/text_time_2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:layout_marginTop="48dp"
         android:text="00:00:000"
         android:textColor="@color/black"
